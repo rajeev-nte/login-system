@@ -7,24 +7,23 @@ const userSchema = new mongoose.Schema({
 
     password: { type: String, required: true },
     verifyOtp: {
-        type: String,
-        default: '',
+        type: String, default: ''
     },
     verifyOtpExpireAt: {
         type: Number,
-        default: 0,
+        default: 0
     },
     isAccountVerified: {
         type: Boolean,
-        default: false,
+        default: false
     },
     resetOpt: {
         type: String,
-        default: '',
+        default: ''
     },
     resetOtpExpireAt: {
         type: Number,
-        default: 0,
+        default: 0
     },
 })
 
