@@ -44,11 +44,11 @@ export const register = async (req, res) => {
             from: process.env.SENDER_EMAIL,
             to: email,
             subject: 'welcome to rk',
-            text: 'welcome to mern system website . your account been created with email id: ${email}'
+            text: `welcome to mern system website . your account been created with email id: ${email}`
 
         }
 
-        await transporter.sendMail(mailOptions);  // send the email
+        // await transporter.sendMail(mailOptions);  // send the email
 
         return res.json({ success:true });
 
