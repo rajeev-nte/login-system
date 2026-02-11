@@ -48,7 +48,7 @@ export const register = async (req, res) => {
 
         }
 
-        // await transporter.sendMail(mailOptions);  // send the email
+        await transporter.sendMail(mailOptions);  // send the email
 
         return res.json({ success:true });
 
@@ -100,7 +100,7 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
     try {
         res.clearCookie('token', {
-           httpOnly: true,
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'strict',
         })
@@ -111,50 +111,115 @@ export const logout = async (req, res) => {
     }
 }
     
-//Send verification OPT to the User Email
+
 // ...............................................
 // Send verification OTP to the user's email
-export const sendVerifyOtp = async (req, res)=>{
-    try {
-        const { userId } = req.body;
+// export const sendVerifyOtp = async (req, res)=>{
+//     try {
+//         const { userId } = req.body;
           
-        const user = await userModel.findById(userId);
+//         const user = await userModel.findById(userId);
 
-        // if (!userId) {
-        //     return res.json({ success: false, message: "userId is required" });
-        // }
+//         // if (!userId) {
+//         //     return res.json({ success: false, message: "userId is required" });
+//         // }
 
 
-        // if (!user) {
-        //     return res.json({ success: false, message: "User not found" });
-        // }
+//         // if (!user) {
+//         //     return res.json({ success: false, message: "User not found" });
+//         // }
 
-        if (user.isAccountVerified) {
-            return res.json({ success: false, message: "Account already verified" });
-        }
+//         if (user.isAccountVerified) {
+//             return res.json({ success: false, message: "Account already verified" });
+//         }
 
-        const otp = String(Math.floor(100000 + Math.random() * 900000));
+//         const otp = String(Math.floor(100000 + Math.random() * 900000));
         
-        user.verifyOtp = otp;
-        user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+//         user.verifyOtp = otp;
+//         user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
-        await user.save();
+//         await user.save();
 
-        const mailOption = {
-            from: process.env.SENDER_EMAIL,
-            to: user.email,
-            subject: 'Account verification OTP',
-            text: `Your OTP is ${otp}. Verify your account using this OTP.`
-        };
+//         const mailOption = {
+//             from: process.env.SENDER_EMAIL,
+//             to: user.email,
+//             subject: 'Account verification OTP',
+//             text: `Your OTP is ${otp}. Verify your account using this OTP.`
+//         };
 
-        await transporter.sendMail(mailOption);
-        return res.json({ success: true, message: 'Verification OTP sent to email' });
+//         await transporter.sendMail(mailOption);
+//         return res.json({ success: true, message: 'Verification OTP sent to email' });
 
-    } catch (error) {
-        return res.json({ success: false, message: error.message });
+//     } catch (error) {
+//         return res.json({ success: false, message: error.message });
+//     }
+// };
+
+
+
+
+// .......................................
+export const sendVerifyOtp = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // 1️⃣ userId validation
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required"
+      });
     }
-};
 
+    // 2️⃣ find user
+    const user = await userModel.findById(userId);
+
+    // 3️⃣ user existence check
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // 4️⃣ already verified check
+    if (user.isAccountVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Account already verified"
+      });
+    }
+
+    // 5️⃣ generate OTP
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    user.verifyOtp = otp;
+    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
+
+    await user.save();
+
+    // 6️⃣ send email
+    const mailOption = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Account verification OTP",
+      text: `Your OTP is ${otp}. Verify your account using this OTP.`
+    };
+
+    await transporter.sendMail(mailOption);
+
+    return res.json({
+      success: true,
+      message: "Verification OTP sent to email"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 
 
 

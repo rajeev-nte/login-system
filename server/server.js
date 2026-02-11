@@ -12,7 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 connectDB();
 
-const allowedOrigins = ['http://localhost:5173']
+const allowedOrigins = ['http://localhost:5173']  // write multiple url in this aarry
 
 app.use(express.json());
 app.use(cookieParser());
